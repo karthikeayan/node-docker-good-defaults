@@ -1,5 +1,7 @@
 node {
     def app
+    def GIT_COMMIT_HASH
+    def shortGitCommit
 
     stage('Clone repository') {
         checkout scm
@@ -9,15 +11,16 @@ node {
         app = docker.build("breeze-nginx")
     }
 
-    stage('Test image') {
-        /* Test steps if any */
+    stage('Find GIT Hash to Tag Image') {
+        GIT_COMMIT_HASH = sh(script: "git log -n 1 --pretty=format:'%H'", returnStdout: true)
+        shortGitCommit = GIT_COMMIT_HASH[0..6]
     }
 
     stage('Push image') {
         sh('$(/usr/local/bin/aws ecr get-login --no-include-email --region us-east-1)')
         
         docker.withRegistry('https://291890047404.dkr.ecr.us-east-1.amazonaws.com') {
-            app.push("${env.BUILD_NUMBER}")
+            app.push("${shortGitCommit}")
             app.push("latest")
         }
     }
