@@ -6,7 +6,7 @@ node {
     }
 
     stage('Build image') {
-        app = docker.build("getintodevops/hellonode")
+        app = docker.build("breeze-nginx/hellonode")
     }
 
     stage('Test image') {
