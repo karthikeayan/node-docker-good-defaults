@@ -1,0 +1,19 @@
+node {
+    def app
+    def GIT_COMMIT_HASH
+    def shortGitCommit
+
+    stage('Clone repository') {
+        checkout scm
+    }
+
+    stage('Find GIT Hash to Pull Image') {
+        GIT_COMMIT_HASH = sh(script: "git log -n 1 --pretty=format:'%H'", returnStdout: true)
+        shortGitCommit = GIT_COMMIT_HASH[0..6]
+    }
+
+    stage('Deploy new image') {
+        sh("sed -i 's/breeze-nginx:/breeze-nginx:${shortGitCommit}/g' deployment.yml")
+        sh('kubectl apply -f deployment.yml')
+    }
+}
