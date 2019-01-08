@@ -24,4 +24,8 @@ node {
             app.push("latest")
         }
     }
+    
+    stage ('Trigger deployment') {
+        build job: 'kube-deploy'
+    }
 }
